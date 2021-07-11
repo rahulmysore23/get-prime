@@ -30,7 +30,7 @@ func (b Brute) GetPrime(number int64) (int64, bool) {
 	return prime, b.CheckPrime(number)
 }
 
-// NewBrute
+// NewBrute creates
 func NewBrute() Brute {
 	return Brute{}
 }

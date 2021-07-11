@@ -37,7 +37,7 @@ func NewSeive(n int64) Seive {
 
 	for p := int64(2); p <= int64(math.Floor(float64(n)/2)); p++ {
 		if primes[p] {
-			for i := p * 2; i <= n; i += p {
+			for i := p * 2; i < n; i += p {
 				primes[i] = false
 			}
 		}
