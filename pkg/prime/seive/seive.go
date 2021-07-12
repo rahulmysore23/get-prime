@@ -1,6 +1,8 @@
 package seive
 
-import "math"
+import (
+	"github.com/rahulmysore23/get-prime/pkg/utilities"
+)
 
 type Seive struct {
 	Primes []bool
@@ -28,14 +30,13 @@ func (s Seive) GetPrime(number int64) (int64, bool) {
 
 // NewSeive creates a seive with size n
 func NewSeive(n int64) Seive {
-
 	primes := make([]bool, n)
 
 	for i := int64(2); i < n; i++ {
 		primes[i] = true
 	}
 
-	for p := int64(2); p <= int64(math.Floor(float64(n)/2)); p++ {
+	for p := int64(2); p <= utilities.Sqrt(n); p++ {
 		if primes[p] {
 			for i := p * 2; i < n; i += p {
 				primes[i] = false
@@ -46,5 +47,4 @@ func NewSeive(n int64) Seive {
 	return Seive{
 		Primes: primes,
 	}
-
 }

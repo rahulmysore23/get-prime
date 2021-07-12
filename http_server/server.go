@@ -7,16 +7,30 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rahulmysore23/get-prime/http_server/handlers"
+	"github.com/rahulmysore23/get-prime/pkg/prime"
+	"github.com/rahulmysore23/get-prime/pkg/prime/seive"
 	"github.com/rahulmysore23/get-prime/pkg/utilities"
 )
+
+var primes prime.Prime
 
 // Start will use a serve config pkg to setup the server and it's dependencies
 func Start() error {
 	return Run()
 }
 
-// Run will inject 3rd party resources and create REST endpoints
 func Run() error {
+	// Use Env variable for brute or Seive
+	primes = seive.NewSeive(1000)
+
+	// Use Env var for logger needed
+	primes = prime.LogPrime{Prime: primes}
+	return InitSever(primes)
+}
+
+// Run will inject 3rd party resources and create REST endpoints
+func InitSever(primes prime.Prime) error {
 	routes := gin.New()
 	routes.Use(
 		CORS(),
@@ -24,12 +38,16 @@ func Run() error {
 		gin.Logger(),
 	)
 
-	// v1 := routes.Group("/v1",
-	// 	gin.Logger(),
-	// )
+	v1 := routes.Group("/v1",
+		gin.Logger(),
+	)
 
-	// v1.GET("")
-	// v1.GET("")
+	svr := handlers.PrimeSvr{
+		Primes: primes,
+	}
+
+	v1.GET("/get_prime/:num", svr.GetPrime)
+	v1.GET("/check_prime/:num", svr.CheckPrime)
 
 	// For test - REMOVE AFTER ADDING UI
 	routes.GET("/", func(c *gin.Context) {

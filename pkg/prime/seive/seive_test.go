@@ -32,7 +32,7 @@ func TestCheckPrime(t *testing.T) {
 
 }
 
-func TestGetPrimeTrue(t *testing.T) {
+func TestGetPrime(t *testing.T) {
 	s := NewSeive(100)
 
 	assertCorrectMessage := func(t testing.TB, gotPrime, wantPrime int64, got, want bool) {
