@@ -3,12 +3,13 @@ package http_server
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rahulmysore23/get-prime/config"
 	"github.com/rahulmysore23/get-prime/http_server/handlers"
+	"github.com/rahulmysore23/get-prime/pkg/logger"
+	"github.com/rahulmysore23/get-prime/pkg/logger/logrus"
 	"github.com/rahulmysore23/get-prime/pkg/prime"
 	"github.com/rahulmysore23/get-prime/pkg/prime/brute"
 	"github.com/rahulmysore23/get-prime/pkg/prime/seive"
@@ -18,6 +19,7 @@ import (
 
 var (
 	primes prime.Prime
+	log    logger.Logger
 	flags  config.AppFlags
 )
 
@@ -51,6 +53,8 @@ func Run(_ *cli.Context) error {
 
 // InitSever will inject resources and create REST endpoints
 func InitSever(primes prime.Prime) error {
+	log = logrus.NewLogrus(flags.LogLevel)
+
 	routes := gin.New()
 	routes.Use(
 		CORS(),
@@ -60,7 +64,7 @@ func InitSever(primes prime.Prime) error {
 
 	v1 := routes.Group("/v1")
 
-	svr := handlers.NewPrimeSvr(primes)
+	svr := handlers.NewPrimeSvr(primes, log)
 
 	v1.GET("/get_prime/:num", svr.GetPrime)
 	v1.GET("/check_prime/:num", svr.CheckPrime)
@@ -75,7 +79,7 @@ func InitSever(primes prime.Prime) error {
 	fmt.Printf("webserver listening on port %v\n", "6060") // TODO - Move to env
 	err := http.ListenAndServe(":6060", routes)
 	if err != nil {
-		log.Fatalln(err)
+		log.LogError(err.Error())
 		return err
 	}
 
