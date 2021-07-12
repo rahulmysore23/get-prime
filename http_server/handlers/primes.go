@@ -23,14 +23,7 @@ func (p PrimeSvr) GetPrime(c *gin.Context) {
 	}
 
 	primeNum, isPrime := p.Primes.GetPrime(num)
-
-	var latency time.Duration
-
-	latency = time.Since(startTime).Round(time.Millisecond)
-
-	if latency == 0 {
-		latency = time.Since(startTime).Round(time.Nanosecond)
-	}
+	latency := time.Since(startTime).Round(time.Nanosecond)
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"in_time":   startTime,
@@ -52,14 +45,7 @@ func (p PrimeSvr) CheckPrime(c *gin.Context) {
 	}
 
 	isPrime := p.Primes.CheckPrime(num)
-
-	var latency time.Duration
-
-	latency = time.Since(startTime).Round(time.Millisecond)
-
-	if latency == 0 {
-		latency = time.Since(startTime).Round(time.Nanosecond)
-	}
+	latency := time.Since(startTime).Round(time.Nanosecond)
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"in_time":  startTime,
