@@ -7,29 +7,49 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rahulmysore23/get-prime/config"
 	"github.com/rahulmysore23/get-prime/http_server/handlers"
 	"github.com/rahulmysore23/get-prime/pkg/prime"
+	"github.com/rahulmysore23/get-prime/pkg/prime/brute"
 	"github.com/rahulmysore23/get-prime/pkg/prime/seive"
 	"github.com/rahulmysore23/get-prime/pkg/utilities"
+	"github.com/urfave/cli/v2"
 )
 
-var primes prime.Prime
+var (
+	primes prime.Prime
+	flags  config.AppFlags
+)
 
-// Start will use a serve config pkg to setup the server and it's dependencies
-func Start() error {
-	return Run()
+// Start will use a serve config pkg to setup the server
+func GetCliApp() *cli.App {
+	app := cli.NewApp()
+
+	// Set flags for app - i.e, Env variables
+	app.Flags = config.GetFlags(&flags)
+	app.Action = Run
+	return app
 }
 
-func Run() error {
-	// Use Env variable for brute or Seive
-	primes = seive.NewSeive(1000)
+// Run will setup the server depdendencies
+func Run(_ *cli.Context) error {
 
-	// Use Env var for logger needed
-	primes = prime.LogPrime{Prime: primes}
+	if flags.PrimeAlgorithm == utilities.BRUTE {
+		primes = brute.NewBrute()
+	} else if flags.PrimeAlgorithm == utilities.SEIVE {
+		primes = seive.NewSeive(flags.MaxPrimes)
+	} else {
+		return fmt.Errorf("wrong algo mentioned in env")
+	}
+
+	if flags.PrimeLogger {
+		primes = prime.LogPrime{Prime: primes}
+	}
+
 	return InitSever(primes)
 }
 
-// Run will inject 3rd party resources and create REST endpoints
+// InitSever will inject resources and create REST endpoints
 func InitSever(primes prime.Prime) error {
 	routes := gin.New()
 	routes.Use(
@@ -38,13 +58,9 @@ func InitSever(primes prime.Prime) error {
 		gin.Logger(),
 	)
 
-	v1 := routes.Group("/v1",
-		gin.Logger(),
-	)
+	v1 := routes.Group("/v1")
 
-	svr := handlers.PrimeSvr{
-		Primes: primes,
-	}
+	svr := handlers.NewPrimeSvr(primes)
 
 	v1.GET("/get_prime/:num", svr.GetPrime)
 	v1.GET("/check_prime/:num", svr.CheckPrime)
