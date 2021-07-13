@@ -7,5 +7,8 @@ build:
 test:
 	go test ./...
 
-dock:
+dock-ui:
+	sudo docker build -t get-prime-ui ./web/get-prime/
+
+dock-server:
 	sudo docker build -t get-prime .

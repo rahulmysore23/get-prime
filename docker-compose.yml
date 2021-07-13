@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  server:
+    build: .
+    ports:
+      - "6060:6060"
+  web:
+    build: ./web/get-prime/
+    ports:
+      - "3000:3000"
