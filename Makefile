@@ -12,3 +12,9 @@ dock-ui:
 
 dock-server:
 	sudo docker build -t get-prime .
+
+dock-up:
+	sudo docker-compose up
+
+dock-build:
+	sudo docker-compose up --build
